@@ -1,39 +1,39 @@
-# Mentality DB v0.20.1 (March 18, 2026)
+# Mentality DB v0.20.2 (March 18, 2026)
 
-An application for local storage of contact data with encryption, import, export, and backup.
+Local contact database with encryption, import/export, backup, and advanced search.
 
-## Highlights in version 0.20.1
+## What's fixed in this version
 
-- Basic search works across all main card fields.
-- Advanced search displays only found cards and highlights them.
-- Custom CTk dialogs have been fixed, including the backup results window.
-- Old versions of the script and documentation are automatically stored in the old_data folder.
+- Search by address and phone number works in both standard and advanced modes.
+- Standard search now includes all card text fields.
+- Advanced search correctly filters and highlights found cards.
+- New cards are not created in the database until explicitly saved.
+- Exiting a new card without saving no longer leaves empty entries.
+- Application dialogs work without display errors and use the interface theme.
 
 ## Search
 
-### Basic Search
+### Standard
 Searches by:
-- First Name RU
-- Last Name RU
-- First Name EN
-- Last Name EN
+- First name RU/EN
+- Last name RU/EN
 - Country
 - City
 - Address
 - Phone
 
-### Advanced Search
+### Advanced
 - Search by individual fields
-- `Enter` moves to the next field
-- `Enter` starts the search in the last field
-- After the search, only found cards are shown
+- Enter switches focus to the next field
+- Enter in the last field starts the search
+- Results are highlighted and displayed as a list filter
 
-## Archive of Old Versions
+## Old Version Storage Policy
 
-All old versions are stored in the `old_data` folder:
-- Old `README`
-- Old `CHANGELOG`
-- Old `main.py`
+Old versions are always stored in the `old_data` folder:
+- Previous `main.py`
+- Previous `README`
+- Previous `CHANGELOG`
 
 ## Run
 
