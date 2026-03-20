@@ -1,53 +1,53 @@
-# 🧠 Mentality DB v0.20.0 (18.03.2026)
+# 🧠 Mentality DB v0.20.0 (March 18, 2026)
 
-Приложение для безопасного хранения контактных данных с шифрованием и резервным копированием.
+An app for securely storing contact data with encryption and backup.
 
-## 📦 Установка
+## 📦 Installation
 
 ```bash
 pip install customtkinter pillow cryptography
 ```
 
-## 🚀 Запуск
+## 🚀 Run
 
 ```bash
 python main.py
-# или
+# or
 ./run.sh
 ```
 
-## ✨ Возможности
+## ✨ Features
 
-- 🔐 Шифрование AES-256 всех персональных данных
-- 📂 Создание, редактирование, удаление контактов
-- 📷 Фотографии к контактам
-- 🗑 Корзина с восстановлением
-- 📤 Экспорт в .mtb и CSV
-- 📥 Импорт из .mtb
-- 💾 Резервное копирование БД
-- 📋 Дублирование контактов
-- 📅 История изменений контакта
-- 🔍 Быстрый и расширенный поиск с подсветкой
-- ⌨️ Навигация по Enter (следующее поле / сохранение)
-- 🌐 Мультиязычность (RU/EN) из JSON файлов
-- 🎨 Тёмная и светлая тема
-- 🪟 Единый стиль всех диалоговых окон
+- 🔐 AES-256 encryption of all personal data
+- 📂 Create, edit, and delete contacts
+- 📷 Add photos to contacts
+- 🗑 Recycle Bin with restore
+- 📤 Export to .mtb and CSV
+- 📥 Import from .mtb
+- 💾 Database backup
+- 📋 Duplicate contacts
+- 📅 Contact change history
+- 🔍 Quick and advanced search with highlighting
+- ⌨️ Enter navigation (next field / save)
+- 🌐 Multilingual support (RU/EN) from JSON files
+- 🎨 Dark and light themes
+- 🪟 Consistent style for all dialog boxes
 
-## 📁 Структура
+## 📁 Structure
 
 ```
 mentality_db/
-├── main.py              # Основной код
-├── config.json          # Конфигурация
-├── run.sh               # Скрипт запуска
-├── languages/           # Языковые файлы (ru.json, en.json)
-└── exports/             # Экспорт, CSV, бэкапы
+├── main.py # Main code
+├── config.json # Configuration
+├── run.sh # Launch script
+├── languages/ # Language files (ru.json, en.json)
+└── exports/ # Export, CSV, backups
 ```
 
-## 🌐 Языки
+## 🌐 Languages
 
-Языки загружаются из папки `languages/` (JSON файлы). Для добавления нового языка создайте файл `xx.json` по образцу существующих.
+Languages ​​are loaded from the `languages/` folder (JSON files). To add a new language, create an `xx.json` file based on the existing ones.
 
-## 📄 Версионирование
+## 📄 Versioning
 
-Файлы CHANGELOG и README создаются с датой и версией в названии.
+CHANGELOG and README files are created with the date and version in their names.
