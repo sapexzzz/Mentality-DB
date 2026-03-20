@@ -1,22 +1,36 @@
-# Mentality DB - Changelog v0.20.3 (March 18, 2026)
+# Mentality DB - Changelog v0.20.4 (March 18, 2026)
+
+## Export
+
+- The export UX has been completely redesigned: the old card selection mode is now replaced by a separate, convenient export window.
+- This window allows you to select:
+- Export volume: entire database or a single card;
+- Export format: mtb or csv.
+- When selecting the "single card" mode, a list of cards is displayed for quick selection.
+- Added export of a single card to CSV.
 
 ## Search
 
-- Fixed city search in both regular and advanced search.
-- Added more robust text normalization (`NFKC` + `casefold` + trimming spaces) so that search correctly finds values ​​like `Rouen` when entering `rouen`.
-- Phone search in both modes continues to work by digits, regardless of formatting.
+- Improved city search in both normal and advanced modes.
+- Added compatibility with legacy data where the city field could appear in the address: city search now checks for city and fallback in address.
+- Text comparison in search is now standardized and case-insensitive.
 
-## Regular Search Launch Mode
+## Editing Hotkeys
 
-- Regular search no longer launches every time a character is entered.
-- Search is launched only:
-- by pressing `Enter` in the search bar;
-- by clicking the magnifying glass button next to the search bar.
+Global bindings have been added:
+- `Ctrl+A` — Select All
+- `Ctrl+Z` — Undo
+- `Ctrl+Y` — Redo
+- `Ctrl+X` — Cut
+- `Ctrl+C` — Copy
+- `Ctrl+V` — Paste
 
-## Filter Behavior
+These bindings work in card input fields, regular and advanced search fields, and other text controls in the application.
 
-- Added a separate "applied" search query for regular search so that results only change after explicitly launching a search. - When switching between modes (Database/Trash), the normal search string and filter are reset.
+## Localization
+
+- New language keys have been added for the new export window (RU/EN).
 
 ## Archiving
 
-- Previous `README`, `CHANGELOG`, and script snapshot have been moved to `old_data`.
+- Previous `README`, `CHANGELOG`, and script snapshots have been moved to `old_data`.
