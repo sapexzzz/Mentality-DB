@@ -1,48 +1,27 @@
-# Mentality DB v0.20.2 (March 18, 2026)
+# Mentality DB v0.20.3 (March 18, 2026)
 
-Local contact database with encryption, import/export, backup, and advanced search.
+## What's Updated
 
-## What's fixed in this version
+- City search has been fixed in both standard and advanced modes.
+- Search is now case-insensitive (`Rouen` = `rouen`).
+- Standard search can now only be launched manually: the magnifying glass button or Enter.
 
-- Search by address and phone number works in both standard and advanced modes.
-- Standard search now includes all card text fields.
-- Advanced search correctly filters and highlights found cards.
-- New cards are not created in the database until explicitly saved.
-- Exiting a new card without saving no longer leaves empty entries.
-- Application dialogs work without display errors and use the interface theme.
+## Standard Search
 
-## Search
+Works across all card fields and applies a filter only after explicitly launching it.
 
-### Standard
-Searches by:
-- First name RU/EN
-- Last name RU/EN
-- Country
-- City
-- Address
-- Phone
+Launch:
+- Enter in the search field
+- 🔎 button next to the line
 
-### Advanced
-- Search by individual fields
-- Enter switches focus to the next field
-- Enter in the last field starts the search
-- Results are highlighted and displayed as a list filter
+## Advanced Search
 
-## Old Version Storage Policy
+- Searches individual fields with text normalization.
+- Enter in fields moves focus; on the last field, it launches the search.
 
-Old versions are always stored in the `old_data` folder:
-- Previous `main.py`
-- Previous `README`
-- Previous `CHANGELOG`
+## Archive of Old Versions
 
-## Run
-
-```bash
-python main.py
-```
-
-or
-
-```bash
-./run.sh
-```
+All old versions are saved in `old_data`:
+- old `main.py`
+- old `README`
+- old `CHANGELOG`
