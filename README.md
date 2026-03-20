@@ -1,27 +1,40 @@
-# Mentality DB v0.20.3 (March 18, 2026)
+# Mentality DB v0.20.4 (March 18, 2026)
 
-## What's Updated
+## Version Highlights
 
-- City search has been fixed in both standard and advanced modes.
-- Search is now case-insensitive (`Rouen` = `rouen`).
-- Standard search can now only be launched manually: the magnifying glass button or Enter.
+- New, beautiful and convenient export via a separate export settings window.
+- Reliable city search in both standard and advanced search.
+- Global editing hotkeys (Ctrl+A/Z/Y/X/C/V).
 
-## Standard Search
+## New Export
 
-Works across all card fields and applies a filter only after explicitly launching it.
+The export button opens a window where you can select:
+- **Size**: entire database or a single card
+- **Format**: mtb or csv
 
-Launch:
-- Enter in the search field
-- 🔎 button next to the line
+A list of cards is available for the "single card" mode.
 
-## Advanced Search
+## Search
 
-- Searches individual fields with text normalization.
-- Enter in fields moves focus; on the last field, it launches the search.
+### Basic Search
+- Searches all card fields
+- Case-insensitive
+- Considers old data variations for the city
 
-## Archive of Old Versions
+### Advanced Search
+- Searches selected fields
+- Case-insensitive
+- Uses digit comparison for phone numbers
 
-All old versions are saved in `old_data`:
-- old `main.py`
-- old `README`
-- old `CHANGELOG`
+## Hotkeys
+
+- `Ctrl+A` — Select all
+- `Ctrl+Z` — Undo
+- `Ctrl+Y` — Redo
+- `Ctrl+X` — Cut
+- `Ctrl+C` — Copy
+- `Ctrl+V` — Paste
+
+## Storing Old Versions
+
+Old versions of code and documents are saved in the `old_data` folder.
