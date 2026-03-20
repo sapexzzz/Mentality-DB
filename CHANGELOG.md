@@ -1,21 +1,22 @@
-# Mentality DB - Changelog v0.20.2 (March 18, 2026)
+# Mentality DB - Changelog v0.20.3 (March 18, 2026)
 
-## Search Fixes
+## Search
 
-- Basic search now covers all card fields: first/last name RU, first/last name EN, country, city, address, and phone number.
-- Phone number search normalization has been added: searching by digits works even if the phone number contains spaces, brackets, hyphens, and the '+' sign.
-- Advanced search has been fixed for address and phone number: values ​​are correctly converted to text and compared without type errors.
-- After an advanced search, the list is actually filtered by found cards and highlighted.
+- Fixed city search in both regular and advanced search.
+- Added more robust text normalization (`NFKC` + `casefold` + trimming spaces) so that search correctly finds values ​​like `Rouen` when entering `rouen`.
+- Phone search in both modes continues to work by digits, regardless of formatting.
 
-## Card Creation Fixes
+## Regular Search Launch Mode
 
-- New cards are no longer saved to the database until the save button is clicked.
-- If you exit a card without saving, the empty card does not appear in the list.
+- Regular search no longer launches every time a character is entered.
+- Search is launched only:
+- by pressing `Enter` in the search bar;
+- by clicking the magnifying glass button next to the search bar.
 
-## Interface Theme
+## Filter Behavior
 
-- Emptying the trash bin and selecting the export mode again work through the themed app dialogs. - Fixed custom dialog creation: the 'grab failed: window not viewable' exception has been resolved.
+- Added a separate "applied" search query for regular search so that results only change after explicitly launching a search. - When switching between modes (Database/Trash), the normal search string and filter are reset.
 
 ## Archiving
 
-- Previous versions of the 'README', 'CHANGELOG', and script snapshot have been saved to 'old_data'.
+- Previous `README`, `CHANGELOG`, and script snapshot have been moved to `old_data`.
