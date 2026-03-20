@@ -28,7 +28,7 @@ try:
 except: pass
 
 # --- CONFIG & PATHS ---
-VERSION = "0.20.0"
+VERSION = "0.20.1"
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__)) if "__file__" in locals() else os.getcwd()
 DB_NAME = os.path.join(SCRIPT_DIR, "database.db")
 KEY_PATH = os.path.join(SCRIPT_DIR, ".mentality_key")
@@ -144,6 +144,7 @@ class MentalityGUI(ctk.CTk):
         self.export_selection_mode = False
         self.highlighted_ids = set()
         self.filtered_ids = None
+        self.current_edit_card_id = None
 
         self.bind("<Escape>", lambda e: self.handle_esc())
         self.rebuild_ui()
@@ -200,6 +201,21 @@ class MentalityGUI(ctk.CTk):
         lang = self.core.cfg.get("language", "ru")
         lang_data = self.core.languages.get(lang, self.core.languages.get("ru", {}))
         return lang_data.get(key, key)
+
+    @staticmethod
+    def _to_text(value):
+        if value is None:
+            return ""
+        if isinstance(value, bytes):
+            try:
+                return value.decode("utf-8", errors="ignore")
+            except Exception:
+                return ""
+        return str(value)
+
+    @staticmethod
+    def _normalize_phone(value):
+        return "".join(ch for ch in str(value) if ch.isdigit())
 
     def handle_esc(self):
         if self.export_selection_mode:
@@ -273,20 +289,24 @@ class MentalityGUI(ctk.CTk):
         grid.grid_columnconfigure((0,1,2,3,4), weight=1)
 
         disp = 0
-        search = self.search_entry.get().lower()
+        search = self.search_entry.get().strip().casefold()
+        phone_search = self._normalize_phone(search)
         err = self.loc("decryption_error")
 
         for r in rows:
-            fn = self.core.decrypt(r[1], err); ln = self.core.decrypt(r[2], err)
-            fn_en = self.core.decrypt(r[3], err); ln_en = self.core.decrypt(r[4], err)
-            country = self.core.decrypt(r[5], err)
-            city = self.core.decrypt(r[6], err)
-            address = self.core.decrypt(r[7], err)
-            phones = self.core.decrypt(r[8], err)
+            fn = self._to_text(self.core.decrypt(r[1], err))
+            ln = self._to_text(self.core.decrypt(r[2], err))
+            fn_en = self._to_text(self.core.decrypt(r[3], err))
+            ln_en = self._to_text(self.core.decrypt(r[4], err))
+            country = self._to_text(self.core.decrypt(r[5], err))
+            city = self._to_text(self.core.decrypt(r[6], err))
+            address = self._to_text(self.core.decrypt(r[7], err))
+            phones = self._to_text(self.core.decrypt(r[8], err))
             if self.filtered_ids is not None and r[0] not in self.filtered_ids:
                 continue
-            haystack = f"{fn} {ln} {fn_en} {ln_en} {country} {city} {address} {phones}".lower()
-            if search and search not in haystack:
+            haystack = f"{fn} {ln} {fn_en} {ln_en} {country} {city} {address} {phones}".casefold()
+            phone_haystack = self._normalize_phone(phones)
+            if search and search not in haystack and (not phone_search or phone_search not in phone_haystack):
                 continue
 
             color = "#e67e22" if self.export_selection_mode else ("#27ae60" if r[0] in self.highlighted_ids else "#3d3d3d")
@@ -302,24 +322,30 @@ class MentalityGUI(ctk.CTk):
     def open_card(self, cid):
         self.gallery_view.pack_forget(); self.details_view.pack(fill="both", expand=True)
         for w in self.details_view.winfo_children(): w.destroy()
+        is_new = cid is None
+        self.current_edit_card_id = cid
 
         top = ctk.CTkFrame(self.details_view, fg_color="transparent"); top.pack(fill="x", padx=20, pady=10)
         ctk.CTkButton(top, text=self.loc("back"), width=100, command=self.close_card).pack(side="left")
-        ctk.CTkButton(top, text=self.loc("history_btn"), width=100, command=lambda: self.show_card_history(cid)).pack(side="left", padx=5)
+        if not is_new:
+            ctk.CTkButton(top, text=self.loc("history_btn"), width=100, command=lambda: self.show_card_history(cid)).pack(side="left", padx=5)
 
-        if self.current_mode == 0:
+        if self.current_mode == 0 and not is_new:
             ctk.CTkButton(top, text=self.loc("to_trash"), fg_color="#c0392b", command=lambda: self.trash_card(cid)).pack(side="right")
             ctk.CTkButton(top, text=self.loc("duplicate_btn"), fg_color="#3498db", command=lambda: self.duplicate_card(cid)).pack(side="right", padx=5)
-        else:
+        elif self.current_mode != 0 and not is_new:
             ctk.CTkButton(top, text=self.loc("perm_del"), fg_color="#922b21", command=lambda: self.perm_del_card(cid)).pack(side="right", padx=5)
             ctk.CTkButton(top, text=self.loc("restore"), fg_color="#2b8a3e", command=lambda: self.restore_card(cid)).pack(side="right", padx=5)
 
         tabs = ctk.CTkTabview(self.details_view); tabs.pack(fill="both", expand=True, padx=20, pady=(0, 20))
         t_info, t_photo = tabs.add(self.loc("tab_info")), tabs.add(self.loc("tab_photo"))
 
-        with sqlite3.connect(DB_NAME) as conn:
-            conn.row_factory = sqlite3.Row
-            row = conn.execute("SELECT * FROM cards WHERE id=?", (cid,)).fetchone()
+        row_data = {}
+        if not is_new:
+            with sqlite3.connect(DB_NAME) as conn:
+                conn.row_factory = sqlite3.Row
+                row = conn.execute("SELECT * FROM cards WHERE id=?", (cid,)).fetchone()
+                row_data = dict(row) if row else {}
 
         self.entry_map = {}
         err = self.loc("decryption_error")
@@ -332,7 +358,8 @@ class MentalityGUI(ctk.CTk):
             f = ctk.CTkFrame(f_info, fg_color="transparent"); f.pack(fill="x", pady=4)
             ctk.CTkLabel(f, text=text, width=150, anchor="w").pack(side="left")
             e = ctk.CTkEntry(f, width=400)
-            e.insert(0, self.core.decrypt(row[col], err))
+            existing = self.core.decrypt(row_data.get(col), err) if not is_new else ""
+            e.insert(0, self._to_text(existing))
             if self.current_mode == 1: e.configure(state="disabled")
             else: self.entry_map[col] = e; entries_list.append(e)
             e.pack(side="left")
@@ -348,11 +375,12 @@ class MentalityGUI(ctk.CTk):
 
         if self.current_mode == 0:
             # Кнопка Сохранить прижата влево
-            ctk.CTkButton(f_info, text=self.loc("save_btn"), fg_color="#2b8a3e", command=lambda: self.save_info(cid)).pack(pady=20, padx=150, anchor="w")
+            ctk.CTkButton(f_info, text=self.loc("save_btn"), fg_color="#2b8a3e", command=lambda: self.save_info(self.current_edit_card_id)).pack(pady=20, padx=150, anchor="w")
 
         self.photo_grid = ctk.CTkScrollableFrame(t_photo, fg_color="transparent"); self.photo_grid.pack(fill="both", expand=True)
-        if self.current_mode == 0: ctk.CTkButton(t_photo, text=self.loc("add_photo"), command=lambda: self.add_photo(cid)).pack(pady=10)
-        self.load_photos(cid)
+        if self.current_mode == 0 and not is_new: ctk.CTkButton(t_photo, text=self.loc("add_photo"), command=lambda: self.add_photo(cid)).pack(pady=10)
+        if not is_new:
+            self.load_photos(cid)
 
     def load_photos(self, cid):
         for w in self.photo_grid.winfo_children(): w.destroy()
@@ -387,15 +415,28 @@ class MentalityGUI(ctk.CTk):
             ctk.CTkLabel(top, text=f"Error: {str(e)[:50]}").pack(padx=20, pady=20)
 
     def save_info(self, cid):
+        now = datetime.now().isoformat()
         upd = {k: self.core.encrypt(v.get()) for k, v in self.entry_map.items()}
-        upd["updated_at"] = datetime.now().isoformat()
-        sql = "UPDATE cards SET " + ", ".join([f"{k}=?" for k in upd.keys()]) + " WHERE id=?"
-        with sqlite3.connect(DB_NAME) as conn: conn.execute(sql, list(upd.values()) + [cid])
+        if cid is None:
+            with sqlite3.connect(DB_NAME) as conn:
+                conn.execute(
+                    "INSERT INTO cards (first_name, last_name, first_name_en, last_name_en, country, city, address, phones, deleted, created_at, updated_at) VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+                    (
+                        upd.get("first_name"), upd.get("last_name"), upd.get("first_name_en"), upd.get("last_name_en"),
+                        upd.get("country"), upd.get("city"), upd.get("address"), upd.get("phones"),
+                        0, now, now
+                    )
+                )
+        else:
+            upd["updated_at"] = now
+            sql = "UPDATE cards SET " + ", ".join([f"{k}=?" for k in upd.keys()]) + " WHERE id=?"
+            with sqlite3.connect(DB_NAME) as conn:
+                conn.execute(sql, list(upd.values()) + [cid])
         self.close_card()
 
     def ask_export_type(self):
         if self.current_mode == 1: self.set_mode(0)
-        res = messagebox.askquestion(self.loc("exp"), self.loc("export_ask"), type="yesnocancel")
+        res = self.ask_yes_no_cancel(self.loc("exp"), self.loc("export_ask"))
         if res == "yes": self.perform_export(None)
         elif res == "no": self.export_selection_mode = True; self.refresh_ui()
 
@@ -422,9 +463,7 @@ class MentalityGUI(ctk.CTk):
         self.refresh_ui()
 
     def create_card(self):
-        with sqlite3.connect(DB_NAME) as conn:
-            nid = conn.execute("INSERT INTO cards (created_at) VALUES (?)", (datetime.now().isoformat(),)).lastrowid
-        self.open_card(nid)
+        self.open_card(None)
 
     def add_photo(self, cid):
         ps = filedialog.askopenfilenames(filetypes=[("Images", "*.jpg *.jpeg *.png *.bmp")])
@@ -454,13 +493,14 @@ class MentalityGUI(ctk.CTk):
             self.close_card()
 
     def close_card(self):
+        self.current_edit_card_id = None
         self.details_view.pack_forget(); self.gallery_view.pack(fill="both", expand=True); self.refresh_ui()
 
     def empty_trash(self):
         with sqlite3.connect(DB_NAME) as conn:
             if conn.execute("SELECT COUNT(*) FROM cards WHERE deleted=1").fetchone()[0] == 0:
-                messagebox.showinfo("!", self.loc("trash_is_empty")); return
-        if messagebox.askyesno("?", self.loc("empty_trash_confirm")):
+                self.show_info(self.loc("trash"), self.loc("trash_is_empty")); return
+        if self.ask_yes_no(self.loc("trash"), self.loc("empty_trash_confirm")):
             with sqlite3.connect(DB_NAME) as conn:
                 conn.execute("DELETE FROM photos WHERE card_id IN (SELECT id FROM cards WHERE deleted=1)")
                 conn.execute("DELETE FROM cards WHERE deleted=1")
@@ -609,7 +649,7 @@ class MentalityGUI(ctk.CTk):
             entries_list.append(e)
 
         def perform_search():
-            query_terms = {k: v.get() for k, v in search_vars.items() if v.get()}
+            query_terms = {k: v.get().strip() for k, v in search_vars.items() if v.get().strip()}
             if not query_terms:
                 return
             err = self.loc("decryption_error")
@@ -620,8 +660,13 @@ class MentalityGUI(ctk.CTk):
                 match = True
                 for col, term in query_terms.items():
                     col_idx = db_cols.index(col)
-                    decrypted = self.core.decrypt(row[col_idx + 1], err).lower()
-                    if term.lower() not in decrypted:
+                    decrypted = self._to_text(self.core.decrypt(row[col_idx + 1], err)).casefold()
+                    term_norm = term.casefold()
+                    if col == "phones":
+                        if self._normalize_phone(term_norm) not in self._normalize_phone(decrypted):
+                            match = False
+                            break
+                    elif term_norm not in decrypted:
                         match = False
                         break
                 if match:
