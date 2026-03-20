@@ -1,0 +1,23 @@
+{
+    "language": "ru",
+    "theme": "Dark",
+    "search_trigger": "manual",
+    "search_fields": [
+        "first_name",
+        "last_name",
+        "first_name_en",
+        "last_name_en",
+        "country",
+        "city",
+        "address",
+        "phones"
+    ],
+    "grid_columns": 6,
+    "date_format": "iso",
+    "unsaved_action": "ask",
+    "backup_before_import": true,
+    "search_scope": "all",
+    "export_default_format": "mtb",
+    "export_default_scope": "full",
+    "max_backups": 10
+}
