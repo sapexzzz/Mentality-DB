@@ -1,5 +1,12 @@
 # Mentality DB v0.20.6 (March 18, 2026)
 
+
+## 📦 Installation
+
+```bash
+pip install customtkinter pillow cryptography
+```
+
 ## What's Updated
 
 - City search has been fixed and is now more stable.
